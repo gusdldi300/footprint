@@ -37,4 +37,5 @@ out/
 .vscode/
 
 ### Example user template template
+application.yml
 application-private.yml

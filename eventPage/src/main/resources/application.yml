@@ -10,7 +10,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create #로딩 시점에, 테이블을 드랍 후 다시 생성함, 운영할 땐 사용하면 안됨
+      ddl-auto: none #create #로딩 시점에, 테이블을 드랍 후 다시 생성함, 운영할 땐 사용하면 안됨
     properties:
       hibernate:
         # show_sql: true
