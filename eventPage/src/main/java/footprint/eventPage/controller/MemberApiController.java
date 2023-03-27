@@ -55,10 +55,10 @@ public class MemberApiController {
         session.setAttribute(authenticCodeInString, memberRequest);
         session.setMaxInactiveInterval(180); //새션 타임아웃 시간 설정: 3분
 
-        log.info("session member email = {}", ((MemberRegisterRequestDto) session.getAttribute(authenticCodeInString)).getEmail());
+            log.info("session member email = {}", ((MemberRegisterRequestDto) session.getAttribute(authenticCodeInString)).getEmail());
 
         return new AuthenticResponseDto(true);
-    }
+}
 
     @PostMapping("/api/members/code")
     public MemberResponseDto validateMemberCode(HttpServletRequest request) throws IOException {
