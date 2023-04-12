@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @RestController
@@ -28,7 +29,8 @@ import java.nio.charset.StandardCharsets;
 public class MemberApiController {
     private final MemberService memberService;
     private final EmailService emailService;
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
+    private AtomicLong memberCount = new AtomicLong(100000L);
 
     @PostMapping("/api/members")
     public AuthenticResponseDto registerMember(HttpServletRequest request) throws IOException {
@@ -41,7 +43,8 @@ public class MemberApiController {
 
         Member MemberOrNull = this.memberService.getMemberByEmailOrNull(memberRequest.getEmail());
         if (MemberOrNull != null) {
-            return new AuthenticResponseDto(false);
+            log.info("등록된 회원입니다");
+            return new AuthenticResponseDto(true);
         }
 
         String authenticCodeInString = this.memberService.createAuthenticCode();
@@ -55,9 +58,9 @@ public class MemberApiController {
         session.setAttribute(authenticCodeInString, memberRequest);
         session.setMaxInactiveInterval(180); //새션 타임아웃 시간 설정: 3분
 
-            log.info("session member email = {}", ((MemberRegisterRequestDto) session.getAttribute(authenticCodeInString)).getEmail());
+        //log.info("session member email = {}", ((MemberRegisterRequestDto) session.getAttribute(authenticCodeInString)).getEmail());
 
-        return new AuthenticResponseDto(true);
+        return new AuthenticResponseDto(false);
 }
 
     @PostMapping("/api/members/code")
@@ -71,6 +74,7 @@ public class MemberApiController {
         String authenticCode = memberCodeRequestDto.getAuthenticCode();
         HttpSession sessionOrNull = request.getSession(false);
         if (sessionOrNull == null) {
+            log.info("No Session");
             return new MemberResponseDto(false, (long) -1);
         }
 
@@ -84,8 +88,9 @@ public class MemberApiController {
 
         this.memberService.register(new Member(memberRequestOrNull.getEmail(), memberRequestOrNull.isAgreed()));
         Member memberOrNull = this.memberService.getMemberByEmailOrNull(memberRequestOrNull.getEmail());
+        log.info("Send complete");
 
-        return new MemberResponseDto(true, memberOrNull.getId());
+        return new MemberResponseDto(true, memberCount.incrementAndGet());
     }
 
 }
